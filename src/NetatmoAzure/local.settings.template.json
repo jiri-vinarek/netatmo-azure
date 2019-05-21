@@ -1,0 +1,16 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "NetatmoAccessToken": "ADD HERE YOUR NETATMO ACCESS TOKEN",
+    "NetatmoDeviceId": "ADD YOUR HERE YOUR NETATMO MAC ADDRESS",
+    "NetatmoUsername": "ADD HERE YOUR NETATMO USER EMAIL",
+    "NetatmoPassword": "ADD HERE YOUR NETATMO PASSWORD",
+    "NetatmoClientId": "ADD HERE YOUR NETATMO CLIENT ID",
+    "NetatmoClientSecret": "ADD HERE YOUR NETATMO CLIENT SECRET"
+  },
+  "ConnectionStrings": {
+    "AzureTableStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;"
+  }
+}
