@@ -7,11 +7,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace NetatmoAzure
 {
-    public static class Refresher
+    public static class NetatmoAccessTokenRefresher
     {
         private static readonly Uri AuthUri = new Uri("https://api.netatmo.com/oauth2/token");
 
-        [FunctionName("Refresher")]
+        [FunctionName("NetatmoAccessTokenRefresher")]
         public static void Run([TimerTrigger("0 0 */1 * * *", RunOnStartup = true)]TimerInfo timer, TraceWriter log, ExecutionContext context)
         {
             log.Info($"Refresher executed at: {DateTime.Now}");

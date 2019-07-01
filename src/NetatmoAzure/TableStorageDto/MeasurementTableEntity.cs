@@ -2,7 +2,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NetatmoAzure
 {
-    public class MeasurementTableEntity : TableEntity
+    public sealed class MeasurementTableEntity : TableEntity
     {
         public MeasurementTableEntity(string macAddress, Measurement measurement)
         {

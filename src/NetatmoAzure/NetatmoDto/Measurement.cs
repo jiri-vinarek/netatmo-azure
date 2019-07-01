@@ -1,6 +1,6 @@
 namespace NetatmoAzure
 {
-    public class Measurement
+    public sealed class Measurement
     {
         public long Time_utc { get; set; }
         public double Temperature { get; set; }

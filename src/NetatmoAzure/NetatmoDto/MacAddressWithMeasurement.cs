@@ -1,6 +1,6 @@
 ﻿namespace NetatmoAzure
 {
-    public class MacAddressWithMeasurement
+    public sealed class MacAddressWithMeasurement
     {
         public MacAddressWithMeasurement(string macAddress, Measurement measurement)
         {
