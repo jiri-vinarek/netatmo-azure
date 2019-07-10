@@ -20,11 +20,8 @@ namespace NetatmoAzure
 
         private static readonly string PowerBiPushRowsUriString = "https://api.powerbi.com/v1.0/myorg/datasets/{0}/tables/measurements/rows";
 
-        public static readonly string PowerBiAccessTokenBlobStorageContainerName = "powerbi_access_token_container";
-        public static readonly string PowerBiAccessTokenBlobStorageBlobName = "powerbi_access_token";
-
         [FunctionName("NetatmoMeasurementReader")]
-        public static void Run([TimerTrigger("0 */5 * * * *", RunOnStartup = true)]TimerInfo timer, TraceWriter log, ExecutionContext context)
+        public static void Run([TimerTrigger("0 5-59/10 * * * *", RunOnStartup = false)]TimerInfo timer, TraceWriter log, ExecutionContext context)
         {
             log.Info($"ValueReader executed at: {DateTime.Now}");
 
@@ -45,12 +42,13 @@ namespace NetatmoAzure
             var result = response.Content.ReadAsStringAsync().Result;
             log.Info(result);
 
-            var macAddressesWithMeasurements = Parse(result);
             var azureConnectionString = config.GetConnectionString("Azure");
+            var macAddressesWithMeasurements = Parse(result);
+
             SaveToTableStorage(macAddressesWithMeasurements, azureConnectionString);
 
-            // TODO - take access token from DB (refresher will put it there)
-            SaveToPowerBi(macAddressesWithMeasurements, config["PowerBiDatasetId"], config["PowerBiAccessToken"], log);
+            var powerBiAccessToken = ReadPowerBiAccessTokenFromBlobStorage(azureConnectionString);
+            SaveToPowerBi(macAddressesWithMeasurements, config["PowerBiDatasetId"], powerBiAccessToken, log);
         }
 
         private static IEnumerable<MacAddressWithMeasurement> Parse(string json)
@@ -77,15 +75,15 @@ namespace NetatmoAzure
             }
         }
 
-        private static string ReadPowerBiAccessTokenFromBlobStorage(string azureTableStorageConnectionString)
+        private static string ReadPowerBiAccessTokenFromBlobStorage(string azureConnectionString)
         {
-            //var storageAccount = CloudStorageAccount.Parse(azureTableStorageConnectionString);
-            //var cloudBlobClient = storageAccount.CreateCloudBlobClient();
+            var storageAccount = CloudStorageAccount.Parse(azureConnectionString);
+            var client = storageAccount.CreateCloudBlobClient();
 
-            //var cloudBlobContainer = cloudBlobClient.GetContainerReference(PowerBiAccessTokenBlobName);
-            ////cloudBlobContainer.crea
+            var container = client.GetContainerReference(PowerBiAccessTokenRefresher.PowerBiAccessTokenBlobStorageContainerName);
+            var blob = container.GetBlockBlobReference(PowerBiAccessTokenRefresher.PowerBiAccessTokenBlobStorageBlobName);
 
-            throw new NotImplementedException();
+            return blob.DownloadText();
         }
 
         private static void SaveToPowerBi(IEnumerable<MacAddressWithMeasurement> macAddressesWithMeasurements, string powerBiDatasetId, string accessToken, TraceWriter log)
@@ -110,18 +108,17 @@ namespace NetatmoAzure
             TimeZoneInfo pragueTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Europe Standard Time");
             var dateTimePrague = TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, pragueTimeZone);
 
-            var measurementPowerBi = new MeasurementPowerBi();
-
-            measurementPowerBi.CO2 = macAddressWithMeasurement.Measurement.CO2;
-            measurementPowerBi.Humidity = macAddressWithMeasurement.Measurement.Humidity;
-            measurementPowerBi.Noise = macAddressWithMeasurement.Measurement.Noise;
-            measurementPowerBi.Pressure = macAddressWithMeasurement.Measurement.Pressure;
-            measurementPowerBi.Temperature = macAddressWithMeasurement.Measurement.Temperature;
-
-            measurementPowerBi.MacAddress = macAddressWithMeasurement.MacAddress;
-
-            measurementPowerBi.DateTimeUtc = dateTimeUtc;
-            measurementPowerBi.DateTimePrague = dateTimePrague;
+            var measurementPowerBi = new MeasurementPowerBi
+            {
+                CO2 = macAddressWithMeasurement.Measurement.CO2,
+                Humidity = macAddressWithMeasurement.Measurement.Humidity,
+                Noise = macAddressWithMeasurement.Measurement.Noise,
+                Pressure = macAddressWithMeasurement.Measurement.Pressure,
+                Temperature = macAddressWithMeasurement.Measurement.Temperature,
+                MacAddress = macAddressWithMeasurement.MacAddress,
+                DateTimeUtc = dateTimeUtc,
+                DateTimePrague = dateTimePrague
+            };
 
             return measurementPowerBi;
         }

@@ -9,7 +9,11 @@
     "NetatmoPassword": "ADD HERE YOUR NETATMO PASSWORD",
     "NetatmoClientId": "ADD HERE YOUR NETATMO CLIENT ID",
     "NetatmoClientSecret": "ADD HERE YOUR NETATMO CLIENT SECRET",
-    "PowerBiDatasetId": "ADD HERE YOUR POWERBI DATASET ID"
+    "PowerBiDatasetId": "ADD HERE YOUR POWERBI DATASET ID",
+    "PowerBiClientId": "ADD HERE YOUR POWERBI CLIENT ID",
+    "PowerBiClientSecret": "ADD HERE YOUR POWERBI CLIENT SECRET",
+    "PowerBiUsername": "ADD HERE YOUR POWERBI (AZURE) USERNAME",
+    "PowerBiPassword": "ADD HERE YOUR POWERBI (AZURE) PASSWORD"
   },
   "ConnectionStrings": {
     "Azure": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;"
