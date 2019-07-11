@@ -9,6 +9,7 @@
     "NetatmoPassword": "ADD HERE YOUR NETATMO PASSWORD",
     "NetatmoClientId": "ADD HERE YOUR NETATMO CLIENT ID",
     "NetatmoClientSecret": "ADD HERE YOUR NETATMO CLIENT SECRET",
+    "PowerBiGroupId": "ADD HERE YOUR POWERBI GROUP ID",
     "PowerBiDatasetId": "ADD HERE YOUR POWERBI DATASET ID",
     "PowerBiClientId": "ADD HERE YOUR POWERBI CLIENT ID",
     "PowerBiClientSecret": "ADD HERE YOUR POWERBI CLIENT SECRET",
