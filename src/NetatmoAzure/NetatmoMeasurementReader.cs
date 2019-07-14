@@ -18,7 +18,7 @@ namespace NetatmoAzure
     {
         private static readonly Uri HomeCoachsDataUri = new Uri("https://api.netatmo.com/api/gethomecoachsdata");
 
-        private static readonly string PowerBiPushRowsUriString = "https://api.powerbi.com/v1.0/myorg/groups/{0}/datasets/{1}/tables/measurements/rows";
+        private static readonly string PowerBiPushRowsUriString = "https://api.powerbi.com/v1.0/myorg/groups/{0}/datasets/{1}/tables/{2}/rows";
 
         [FunctionName("NetatmoMeasurementReader")]
         public static void Run([TimerTrigger("0 5-59/10 * * * *", RunOnStartup = false)]TimerInfo timer, TraceWriter log, ExecutionContext context)
@@ -48,7 +48,14 @@ namespace NetatmoAzure
             SaveToTableStorage(macAddressesWithMeasurements, azureConnectionString);
 
             var powerBiAccessToken = ReadPowerBiAccessTokenFromBlobStorage(azureConnectionString);
-            SaveToPowerBi(macAddressesWithMeasurements, config["PowerBiGroupId"], config["PowerBiDatasetId"], powerBiAccessToken, log);
+            SaveToPowerBi(
+                macAddressesWithMeasurements: macAddressesWithMeasurements, 
+                powerBiGroupId: config["PowerBiGroupId"], 
+                powerBiDatasetId: config["PowerBiDatasetId"],
+                powerBiTable: config["PowerBiTable"],
+                accessToken: powerBiAccessToken, 
+                log: log
+            );
         }
 
         private static IEnumerable<MacAddressWithMeasurement> Parse(string json)
@@ -86,9 +93,9 @@ namespace NetatmoAzure
             return blob.DownloadText();
         }
 
-        private static void SaveToPowerBi(IEnumerable<MacAddressWithMeasurement> macAddressesWithMeasurements, string powerBiGroupId, string powerBiDatasetId, string accessToken, TraceWriter log)
+        private static void SaveToPowerBi(IEnumerable<MacAddressWithMeasurement> macAddressesWithMeasurements, string powerBiGroupId, string powerBiDatasetId, string powerBiTable, string accessToken, TraceWriter log)
         {
-            var pushRowsUri = new Uri(string.Format(PowerBiPushRowsUriString, powerBiGroupId, powerBiDatasetId));
+            var pushRowsUri = new Uri(string.Format(PowerBiPushRowsUriString, powerBiGroupId, powerBiDatasetId, powerBiTable));
 
             var rowsPowerBi = new RowsPowerBi() { rows = macAddressesWithMeasurements.Select(ConvertMeasurement).ToList() };
             var rowsPowerBiSerialized = JsonConvert.SerializeObject(rowsPowerBi);
