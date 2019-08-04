@@ -21,7 +21,6 @@ namespace NetatmoAzure
         private static readonly string PowerBiPushRowsUriString = "https://api.powerbi.com/v1.0/myorg/groups/{0}/datasets/{1}/tables/{2}/rows";
 
         [FunctionName("NetatmoMeasurementReader")]
-        public static void Run([TimerTrigger("0 5-59/10 * * * *", RunOnStartup = false)]TimerInfo timer, TraceWriter log, ExecutionContext context)
         public static void Run([TimerTrigger("0 5-59/10 * * * *", RunOnStartup = true)]TimerInfo timer, TraceWriter log, ExecutionContext context)
         {
             log.Info($"ValueReader executed at: {DateTime.Now}");
