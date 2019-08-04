@@ -22,6 +22,7 @@ namespace NetatmoAzure
 
         [FunctionName("NetatmoMeasurementReader")]
         public static void Run([TimerTrigger("0 5-59/10 * * * *", RunOnStartup = false)]TimerInfo timer, TraceWriter log, ExecutionContext context)
+        public static void Run([TimerTrigger("0 5-59/10 * * * *", RunOnStartup = true)]TimerInfo timer, TraceWriter log, ExecutionContext context)
         {
             log.Info($"ValueReader executed at: {DateTime.Now}");
 
@@ -45,17 +46,27 @@ namespace NetatmoAzure
             var azureConnectionString = config.GetConnectionString("Azure");
             var macAddressesWithMeasurements = Parse(result);
 
-            SaveToTableStorage(macAddressesWithMeasurements, azureConnectionString);
+            // This block here serves as a mechanism to overcome multiple inserts of a same row into PowerBI push dataset.
+            // The problem is the PowerBI push DB which sums values of the duplicate rows.
+            // In that case SaveToPowerBi throws StorageException.
+            try
+            {
+                SaveToTableStorage(macAddressesWithMeasurements, azureConnectionString);
 
-            var powerBiAccessToken = ReadPowerBiAccessTokenFromBlobStorage(azureConnectionString);
-            SaveToPowerBi(
-                macAddressesWithMeasurements: macAddressesWithMeasurements, 
-                powerBiGroupId: config["PowerBiGroupId"], 
-                powerBiDatasetId: config["PowerBiDatasetId"],
-                powerBiTable: config["PowerBiTable"],
-                accessToken: powerBiAccessToken, 
-                log: log
-            );
+                var powerBiAccessToken = ReadPowerBiAccessTokenFromBlobStorage(azureConnectionString);
+                SaveToPowerBi(
+                    macAddressesWithMeasurements: macAddressesWithMeasurements,
+                    powerBiGroupId: config["PowerBiGroupId"],
+                    powerBiDatasetId: config["PowerBiDatasetId"],
+                    powerBiTable: config["PowerBiTable"],
+                    accessToken: powerBiAccessToken,
+                    log: log
+                );
+            }
+            catch (StorageException e)
+            {
+                log.Error(e.ToString());
+            }
         }
 
         private static IEnumerable<MacAddressWithMeasurement> Parse(string json)
@@ -77,8 +88,8 @@ namespace NetatmoAzure
 
             foreach (var m in macAddressesWithMeasurements)
             {
-                var insertOperation = TableOperation.InsertOrReplace(new MeasurementTableEntity(m.MacAddress, m.Measurement));
-                table.Execute(insertOperation);
+                var insertOperation = TableOperation.Insert(new MeasurementTableEntity(m.MacAddress, m.Measurement));
+                var result = table.Execute(insertOperation);
             }
         }
 
