@@ -1,5 +1,7 @@
 # Overview
 
+See the blog post https://developers.mewssystems.com/office-air-monitoring/ for the info about this project.
+
 ![alt text](doc/AzureFunctionsDiagram.png)
 
 # Configuration
